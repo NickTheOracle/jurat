@@ -33,6 +33,7 @@ const {
   setSelectedForm,
   buildFullName,
   getNormalizedClient,
+  fetchN400Template,
   createN400Doc,
   downloadPdfDoc,
   openPdfDoc,
@@ -97,6 +98,19 @@ const setProgress = (value, label) => {
 
 const resetProgress = () => {
   setProgress(0, "Waiting for a download.");
+};
+
+const checkN400Template = async () => {
+  const templateResult = await fetchN400Template();
+  if (!templateResult.ok) {
+    const statusLabel = templateResult.status ? `HTTP ${templateResult.status}` : "Network error";
+    const templateUrl = `${window.location.origin}/forms/N-400.pdf`;
+    logStatus(`N-400 template unavailable (${statusLabel}).`, "error", templateUrl);
+    setProgress(0, "Template unavailable.");
+    return null;
+  }
+  logStatus("N-400 template loaded.", "success");
+  return templateResult.bytes;
 };
 
 const buildClientFromForm = (formData) => {
@@ -225,7 +239,11 @@ const renderClients = () => {
       event.stopPropagation();
       setProgress(10, "Loading N-400 template...");
       logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
-      const pdfDoc = await createN400Doc(client);
+      const templateBytes = await checkN400Template();
+      if (!templateBytes) {
+        return;
+      }
+      const pdfDoc = await createN400Doc(client, templateBytes);
       if (!pdfDoc) {
         logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
         setProgress(0, "Download failed.");
@@ -584,7 +602,11 @@ downloadPreviewBtn.addEventListener("click", async () => {
   const normalized = getNormalizedClient(activeClient);
   setProgress(10, "Loading N-400 template...");
   logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
-  const pdfDoc = await createN400Doc(activeClient);
+  const templateBytes = await checkN400Template();
+  if (!templateBytes) {
+    return;
+  }
+  const pdfDoc = await createN400Doc(activeClient, templateBytes);
   if (!pdfDoc) {
     logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
     setProgress(0, "Download failed.");
@@ -604,7 +626,11 @@ openPreviewBtn.addEventListener("click", async () => {
   }
   const normalized = getNormalizedClient(activeClient);
   logStatus(`Opening preview for ${normalized.fullName}`, "info");
-  const pdfDoc = await createN400Doc(activeClient);
+  const templateBytes = await checkN400Template();
+  if (!templateBytes) {
+    return;
+  }
+  const pdfDoc = await createN400Doc(activeClient, templateBytes);
   if (!pdfDoc) {
     logStatus(`Failed to open preview for ${normalized.fullName}`, "error");
     return;

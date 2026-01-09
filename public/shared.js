@@ -3,7 +3,7 @@ const JuratShared = (() => {
   const DRAFTS_KEY = "jurat.drafts";
   const SELECTED_FORM_KEY = "jurat.selectedForm";
   const N400_FORM_ID = "N-400";
-  const N400_PDF_PATH = "./forms/N-400.pdf";
+  const N400_PDF_PATH = "/forms/N-400.pdf";
 
   const splitName = (fullName = "") => {
     const parts = fullName.trim().split(/\s+/).filter(Boolean);
@@ -199,23 +199,33 @@ const JuratShared = (() => {
     });
   };
 
-  const createN400Doc = async (client) => {
+  const fetchN400Template = async () => {
+    try {
+      const response = await fetch(N400_PDF_PATH, { cache: "no-store" });
+      if (!response.ok) {
+        return { ok: false, status: response.status, bytes: null };
+      }
+      const bytes = await response.arrayBuffer();
+      return { ok: true, status: response.status, bytes };
+    } catch (error) {
+      return { ok: false, status: 0, bytes: null, error };
+    }
+  };
+
+  const createN400Doc = async (client, templateBytes) => {
     if (!window.PDFLib) {
       window.alert("PDF library not loaded yet. Please refresh and try again.");
       return null;
     }
-    let existingPdfBytes;
-    try {
-      const response = await fetch(N400_PDF_PATH);
-      if (!response.ok) {
+    let existingPdfBytes = templateBytes;
+    if (!existingPdfBytes) {
+      const result = await fetchN400Template();
+      if (!result.ok) {
+        console.warn("Failed to load N-400 PDF.", result.error || result.status);
         window.alert("Unable to load the official N-400 PDF. Please refresh and try again.");
         return null;
       }
-      existingPdfBytes = await response.arrayBuffer();
-    } catch (error) {
-      console.warn("Failed to load N-400 PDF.", error);
-      window.alert("Unable to load the official N-400 PDF. Please refresh and try again.");
-      return null;
+      existingPdfBytes = result.bytes;
     }
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
@@ -290,21 +300,23 @@ const JuratShared = (() => {
     return true;
   };
 
-  return {
-    STORAGE_KEY,
-    DRAFTS_KEY,
-    N400_FORM_ID,
-    loadClients,
-    saveClients,
-    loadDrafts,
-    saveDrafts,
-    getSelectedForm,
-    setSelectedForm,
-    buildFullName,
-    getNormalizedClient,
-    createN400Doc,
-    createPdfBlobUrl,
-    downloadPdfDoc,
-    openPdfDoc,
+    return {
+      STORAGE_KEY,
+      DRAFTS_KEY,
+      N400_FORM_ID,
+      N400_PDF_PATH,
+      loadClients,
+      saveClients,
+      loadDrafts,
+      saveDrafts,
+      getSelectedForm,
+      setSelectedForm,
+      buildFullName,
+      getNormalizedClient,
+      fetchN400Template,
+      createN400Doc,
+      createPdfBlobUrl,
+      downloadPdfDoc,
+      openPdfDoc,
   };
 })();
