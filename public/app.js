@@ -22,6 +22,8 @@ const openPreviewBtn = document.querySelector("#open-preview-btn");
 const statusLog = document.querySelector("#status-log");
 const progressBar = document.querySelector("#progress-bar");
 const progressLabel = document.querySelector("#progress-label");
+const runDiagnosticsBtn = document.querySelector("#run-diagnostics-btn");
+const downloadTemplateBtn = document.querySelector("#download-template-btn");
 
 const {
   N400_FORM_ID,
@@ -98,6 +100,61 @@ const setProgress = (value, label) => {
 
 const resetProgress = () => {
   setProgress(0, "Waiting for a download.");
+};
+
+const downloadTemplate = async () => {
+  setProgress(10, "Downloading raw N-400...");
+  const templateBytes = await checkN400Template();
+  if (!templateBytes) {
+    return;
+  }
+  const blob = new Blob([templateBytes], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "N-400-template.pdf";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  setProgress(100, "Template download started.");
+};
+
+const runDiagnostics = async () => {
+  logStatus("Running PDF diagnostics...", "info");
+  setProgress(10, "Checking PDF library...");
+  if (!window.PDFLib) {
+    logStatus("PDF library missing on page.", "error");
+    setProgress(0, "PDF library missing.");
+    return;
+  }
+  setProgress(30, "Fetching N-400 template...");
+  const templateBytes = await checkN400Template();
+  if (!templateBytes) {
+    return;
+  }
+  logStatus(`Template size: ${templateBytes.byteLength} bytes.`, "success");
+  setProgress(60, "Parsing PDF...");
+  try {
+    const pdfDoc = await window.PDFLib.PDFDocument.load(templateBytes);
+    const pageCount = pdfDoc.getPageCount();
+    logStatus(`PDF parsed (${pageCount} pages).`, "success");
+    setProgress(80, "Opening preview tab...");
+    const blob = new Blob([templateBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const opened = window.open(url, "_blank", "noopener");
+    if (!opened) {
+      logStatus("Preview blocked by browser popup settings.", "error");
+      setProgress(0, "Preview blocked.");
+      return;
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    setProgress(100, "Diagnostics complete.");
+  } catch (error) {
+    console.warn("PDF parse failed.", error);
+    logStatus("Unable to parse PDF template.", "error");
+    setProgress(0, "PDF parse failed.");
+  }
 };
 
 const checkN400Template = async () => {
@@ -650,3 +707,6 @@ renderClients();
 renderDrafts();
 renderPreview();
 resetProgress();
+
+runDiagnosticsBtn.addEventListener("click", runDiagnostics);
+downloadTemplateBtn.addEventListener("click", downloadTemplate);
