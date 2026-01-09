@@ -2,6 +2,8 @@ const formSelect = document.querySelector("#form-select");
 const intakeForm = document.querySelector("#intake-form");
 const clearFormBtn = document.querySelector("#clear-form-btn");
 const loadSampleBtn = document.querySelector("#load-sample-btn");
+const editClientId = document.querySelector("#edit-client-id");
+const saveIntakeBtn = document.querySelector("#save-intake-btn");
 const sendLinkBtn = document.querySelector("#send-link-btn");
 const linkBox = document.querySelector("#link-box");
 const importDraftsBtn = document.querySelector("#import-drafts-btn");
@@ -46,8 +48,16 @@ const formSchema = [
   { key: "country", label: "Country" },
   { key: "email", label: "Email address" },
   { key: "phone", label: "Phone number" },
+  { key: "gender", label: "Gender" },
+  { key: "heightFeet", label: "Height (ft)" },
+  { key: "heightInches", label: "Height (in)" },
+  { key: "weight", label: "Weight (lbs)" },
+  { key: "eyeColor", label: "Eye color" },
+  { key: "hairColor", label: "Hair color" },
   { key: "maritalStatus", label: "Marital status" },
   { key: "spouseName", label: "Spouse full legal name" },
+  { key: "occupation", label: "Occupation" },
+  { key: "employer", label: "Employer" },
   { key: "tripsCount", label: "Trips outside the U.S. (5 years)" },
   { key: "tripsDays", label: "Total days outside the U.S." },
   { key: "notes", label: "Notes for attorney" },
@@ -119,8 +129,16 @@ const buildClientFromForm = (formData) => {
     citizenship: formData.get("citizenship"),
     email: formData.get("email"),
     phone: formData.get("phone"),
+    gender: formData.get("gender"),
+    heightFeet: formData.get("heightFeet"),
+    heightInches: formData.get("heightInches"),
+    weight: formData.get("weight"),
+    eyeColor: formData.get("eyeColor"),
+    hairColor: formData.get("hairColor"),
     maritalStatus: formData.get("maritalStatus"),
     spouseName: formData.get("spouseName"),
+    occupation: formData.get("occupation"),
+    employer: formData.get("employer"),
     address,
     addressLine1,
     addressLine2: formData.get("addressLine2"),
@@ -135,6 +153,16 @@ const buildClientFromForm = (formData) => {
   };
 };
 
+const buildClientFromFormWithId = (formData, id, createdAt) => {
+  const client = buildClientFromForm(formData);
+  return {
+    ...client,
+    id,
+    createdAt,
+    updatedAt: new Date().toISOString(),
+  };
+};
+
 const fillForm = (values) => {
   Object.entries(values).forEach(([key, value]) => {
     const field = intakeForm.querySelector(`[name="${key}"]`);
@@ -143,6 +171,16 @@ const fillForm = (values) => {
     }
     field.value = value;
   });
+};
+
+const setEditMode = (client) => {
+  if (!client) {
+    editClientId.value = "";
+    saveIntakeBtn.textContent = "Save intake";
+    return;
+  }
+  editClientId.value = client.id;
+  saveIntakeBtn.textContent = "Update intake";
 };
 
 const renderClients = () => {
@@ -167,10 +205,17 @@ const renderClients = () => {
         <span class="badge">${client.formId}</span>
         <span class="badge">${client.source === "client" ? "Client intake" : "Assistant intake"}</span>
       </div>
-      <button class="btn btn-primary" type="button">Download N-400 (PDF)</button>
+      <div class="card-actions">
+        <button class="btn btn-primary" type="button" data-action="download">Download N-400 (PDF)</button>
+        <button class="btn btn-ghost" type="button" data-action="edit">Edit</button>
+        <button class="btn btn-muted" type="button" data-action="delete">Delete</button>
+      </div>
     `;
-    const button = card.querySelector("button");
-    button.addEventListener("click", async () => {
+    const downloadBtn = card.querySelector('[data-action="download"]');
+    const editBtn = card.querySelector('[data-action="edit"]');
+    const deleteBtn = card.querySelector('[data-action="delete"]');
+    downloadBtn.addEventListener("click", async (event) => {
+      event.stopPropagation();
       setProgress(10, "Loading N-400 template...");
       logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
       const pdfDoc = await createN400Doc(client);
@@ -183,6 +228,27 @@ const renderClients = () => {
       const url = await downloadPdfDoc({ pdfDoc, fileName: `${client.id}-N-400.pdf` });
       setProgress(100, "Download started.");
       logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success", url);
+    });
+    editBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      fillForm(getNormalizedClient(client));
+      setEditMode(client);
+      selectedClientId = client.id;
+      renderPreview();
+      intakeForm.scrollIntoView({ behavior: "smooth" });
+    });
+    deleteBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (!window.confirm(`Delete intake for ${normalized.fullName}?`)) {
+        return;
+      }
+      clients = clients.filter((item) => item.id !== client.id);
+      saveClients(clients);
+      if (selectedClientId === client.id) {
+        selectedClientId = clients[0]?.id || null;
+      }
+      renderClients();
+      renderPreview();
     });
     card.addEventListener("click", () => {
       selectedClientId = client.id;
@@ -270,9 +336,22 @@ formSelect.addEventListener("change", (event) => {
 intakeForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(intakeForm);
-  const client = buildClientFromForm(formData);
-  clients = [client, ...clients];
-  selectedClientId = client.id;
+  const existingId = editClientId.value;
+  if (existingId) {
+    const existing = clients.find((client) => client.id === existingId);
+    const updated = buildClientFromFormWithId(
+      formData,
+      existingId,
+      existing?.createdAt || new Date().toISOString()
+    );
+    clients = clients.map((client) => (client.id === existingId ? updated : client));
+    selectedClientId = existingId;
+    setEditMode(null);
+  } else {
+    const client = buildClientFromForm(formData);
+    clients = [client, ...clients];
+    selectedClientId = client.id;
+  }
   saveClients(clients);
   intakeForm.reset();
   renderClients();
@@ -281,6 +360,7 @@ intakeForm.addEventListener("submit", (event) => {
 
 clearFormBtn.addEventListener("click", () => {
   intakeForm.reset();
+  setEditMode(null);
 });
 
 loadSampleBtn.addEventListener("click", () => {
@@ -298,8 +378,16 @@ loadSampleBtn.addEventListener("click", () => {
     citizenship: "Colombia",
     email: "valeria.gomez@email.com",
     phone: "(312) 555-0148",
+    gender: "female",
+    heightFeet: "5",
+    heightInches: "4",
+    weight: "132",
+    eyeColor: "Brown",
+    hairColor: "Black",
     maritalStatus: "married",
     spouseName: "Diego Gomez",
+    occupation: "Accountant",
+    employer: "Brightline LLC",
     addressLine1: "4100 W Irving Park Rd",
     addressLine2: "Apt 12C",
     city: "Chicago",
@@ -311,6 +399,7 @@ loadSampleBtn.addEventListener("click", () => {
     notes: "Requested name update after marriage.",
   };
   fillForm(sample);
+  setEditMode(null);
 });
 
 sendLinkBtn.addEventListener("click", () => {

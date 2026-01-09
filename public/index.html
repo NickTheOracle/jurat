@@ -39,6 +39,7 @@
             <p>Fill this out or send a client link for the same intake.</p>
           </div>
           <form id="intake-form">
+            <input type="hidden" id="edit-client-id" name="editClientId" />
             <div class="field-row">
               <label for="first-name">Legal first name</label>
               <input id="first-name" name="firstName" type="text" placeholder="Maria" required />
@@ -92,6 +93,35 @@
               <input id="phone" name="phone" type="tel" placeholder="(312) 555-0190" />
             </div>
             <div class="field-row">
+              <label for="gender">Gender</label>
+              <select id="gender" name="gender">
+                <option value="">Select</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label for="height-feet">Height (feet)</label>
+              <input id="height-feet" name="heightFeet" type="number" min="0" placeholder="5" />
+            </div>
+            <div class="field-row">
+              <label for="height-inches">Height (inches)</label>
+              <input id="height-inches" name="heightInches" type="number" min="0" placeholder="6" />
+            </div>
+            <div class="field-row">
+              <label for="weight">Weight (lbs)</label>
+              <input id="weight" name="weight" type="number" min="0" placeholder="140" />
+            </div>
+            <div class="field-row">
+              <label for="eye-color">Eye color</label>
+              <input id="eye-color" name="eyeColor" type="text" placeholder="Brown" />
+            </div>
+            <div class="field-row">
+              <label for="hair-color">Hair color</label>
+              <input id="hair-color" name="hairColor" type="text" placeholder="Black" />
+            </div>
+            <div class="field-row">
               <label for="marital-status">Marital status</label>
               <select id="marital-status" name="maritalStatus">
                 <option value="">Select</option>
@@ -105,6 +135,14 @@
             <div class="field-row">
               <label for="spouse-name">Spouse full legal name (if applicable)</label>
               <input id="spouse-name" name="spouseName" type="text" placeholder="Alex Torres" />
+            </div>
+            <div class="field-row">
+              <label for="occupation">Current occupation</label>
+              <input id="occupation" name="occupation" type="text" placeholder="Accountant" />
+            </div>
+            <div class="field-row">
+              <label for="employer">Current employer</label>
+              <input id="employer" name="employer" type="text" placeholder="Brightline LLC" />
             </div>
             <div class="field-row">
               <label for="address-line1">Street address</label>
@@ -143,7 +181,7 @@
               <textarea id="notes" name="notes" rows="4" placeholder="Add any context or special considerations."></textarea>
             </div>
             <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Save intake</button>
+              <button class="btn btn-primary" type="submit" id="save-intake-btn">Save intake</button>
               <button class="btn btn-ghost" type="button" id="load-sample-btn">Load sample intake</button>
               <button class="btn btn-muted" type="button" id="clear-form-btn">Clear</button>
             </div>
