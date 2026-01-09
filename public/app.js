@@ -10,6 +10,9 @@ const importDraftsBtn = document.querySelector("#import-drafts-btn");
 const exportIntakesBtn = document.querySelector("#export-intakes-btn");
 const importIntakesBtn = document.querySelector("#import-intakes-btn");
 const importIntakesFile = document.querySelector("#import-intakes-file");
+const exportDraftsBtn = document.querySelector("#export-drafts-btn");
+const importDraftsFileBtn = document.querySelector("#import-drafts-file-btn");
+const importDraftsFile = document.querySelector("#import-drafts-file");
 const draftList = document.querySelector("#draft-list");
 const clientList = document.querySelector("#client-list");
 const previewContent = document.querySelector("#preview-content");
@@ -344,6 +347,19 @@ const exportIntakes = () => {
   link.click();
 };
 
+const exportDrafts = () => {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    drafts,
+  };
+  const dataStr = `data:application/json,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
+  const link = document.createElement("a");
+  link.href = dataStr;
+  link.download = `jurat-drafts-${Date.now()}.json`;
+  link.click();
+};
+
 const importIntakes = async (file) => {
   const text = await file.text();
   const parsed = JSON.parse(text);
@@ -356,6 +372,19 @@ const importIntakes = async (file) => {
   renderClients();
   renderPreview();
   logStatus(`Imported ${parsed.clients.length} intakes.`, "success");
+};
+
+const importDrafts = async (file) => {
+  const text = await file.text();
+  const parsed = JSON.parse(text);
+  if (!parsed || !Array.isArray(parsed.drafts)) {
+    window.alert("Invalid drafts file.");
+    return;
+  }
+  drafts = [...parsed.drafts, ...drafts];
+  saveDrafts(drafts);
+  renderDrafts();
+  logStatus(`Imported ${parsed.drafts.length} drafts.`, "success");
 };
 
 formSelect.value = getSelectedForm();
@@ -493,6 +522,33 @@ importIntakesFile.addEventListener("change", async (event) => {
     window.alert("Unable to import the intake file.");
   } finally {
     importIntakesFile.value = "";
+  }
+});
+
+exportDraftsBtn.addEventListener("click", () => {
+  if (drafts.length === 0) {
+    window.alert("No drafts to export yet.");
+    return;
+  }
+  exportDrafts();
+});
+
+importDraftsFileBtn.addEventListener("click", () => {
+  importDraftsFile.click();
+});
+
+importDraftsFile.addEventListener("change", async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return;
+  }
+  try {
+    await importDrafts(file);
+  } catch (error) {
+    console.warn("Failed to import drafts.", error);
+    window.alert("Unable to import the drafts file.");
+  } finally {
+    importDraftsFile.value = "";
   }
 });
 
