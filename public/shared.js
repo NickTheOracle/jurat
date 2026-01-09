@@ -2,6 +2,7 @@ const JuratShared = (() => {
   const STORAGE_KEY = "jurat.clients";
   const DRAFTS_KEY = "jurat.drafts";
   const SELECTED_FORM_KEY = "jurat.selectedForm";
+  const SERVICE_URL_KEY = "jurat.pdfServiceUrl";
   const N400_FORM_ID = "N-400";
   const N400_PDF_PATH = "/forms/N-400.pdf";
 
@@ -178,6 +179,14 @@ const JuratShared = (() => {
     localStorage.setItem(SELECTED_FORM_KEY, formId);
   };
 
+  const getPdfServiceUrl = () => {
+    return localStorage.getItem(SERVICE_URL_KEY) || "";
+  };
+
+  const setPdfServiceUrl = (url) => {
+    localStorage.setItem(SERVICE_URL_KEY, url);
+  };
+
   const setTextField = (form, name, value) => {
     try {
       const field = form.getTextField(name);
@@ -268,8 +277,30 @@ const JuratShared = (() => {
     return URL.createObjectURL(blob);
   };
 
-  const downloadPdfDoc = async ({ pdfDoc, fileName }) => {
-    const url = await createPdfBlobUrl(pdfDoc);
+  const createBlobUrlFromBytes = (bytes) => {
+    const blob = new Blob([bytes], { type: "application/pdf" });
+    return URL.createObjectURL(blob);
+  };
+
+  const requestN400Pdf = async (client) => {
+    const serviceUrl = getPdfServiceUrl();
+    if (!serviceUrl) {
+      return { ok: false, status: 0, error: "Service URL not set." };
+    }
+    const normalized = getNormalizedClient(client);
+    const response = await fetch(`${serviceUrl.replace(/\\/$/, "")}/fill/n-400`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(normalized),
+    });
+    if (!response.ok) {
+      return { ok: false, status: response.status };
+    }
+    const bytes = await response.arrayBuffer();
+    return { ok: true, bytes };
+  };
+
+  const triggerDownload = (url, fileName) => {
     const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
@@ -287,6 +318,16 @@ const JuratShared = (() => {
     return url;
   };
 
+  const downloadPdfDoc = async ({ pdfDoc, fileName }) => {
+    const url = await createPdfBlobUrl(pdfDoc);
+    return triggerDownload(url, fileName);
+  };
+
+  const downloadPdfBytes = async ({ bytes, fileName }) => {
+    const url = createBlobUrlFromBytes(bytes);
+    return triggerDownload(url, fileName);
+  };
+
   const openPdfDoc = async ({ pdfDoc }) => {
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
@@ -302,21 +343,25 @@ const JuratShared = (() => {
 
     return {
       STORAGE_KEY,
-      DRAFTS_KEY,
-      N400_FORM_ID,
-      N400_PDF_PATH,
-      loadClients,
-      saveClients,
-      loadDrafts,
-      saveDrafts,
-      getSelectedForm,
-      setSelectedForm,
-      buildFullName,
-      getNormalizedClient,
-      fetchN400Template,
-      createN400Doc,
-      createPdfBlobUrl,
-      downloadPdfDoc,
-      openPdfDoc,
+    DRAFTS_KEY,
+    N400_FORM_ID,
+    N400_PDF_PATH,
+    getPdfServiceUrl,
+    setPdfServiceUrl,
+    loadClients,
+    saveClients,
+    loadDrafts,
+    saveDrafts,
+    getSelectedForm,
+    setSelectedForm,
+    buildFullName,
+    getNormalizedClient,
+    fetchN400Template,
+    createN400Doc,
+    createPdfBlobUrl,
+    downloadPdfDoc,
+    downloadPdfBytes,
+    requestN400Pdf,
+    openPdfDoc,
   };
 })();

@@ -339,6 +339,23 @@ textarea:focus {
   margin-top: 24px;
 }
 
+.service-config {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.service-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.service-row input {
+  flex: 1 1 320px;
+}
+
 .preview-controls {
   display: flex;
   flex-direction: column;

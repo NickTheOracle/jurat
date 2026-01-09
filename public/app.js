@@ -24,6 +24,8 @@ const progressBar = document.querySelector("#progress-bar");
 const progressLabel = document.querySelector("#progress-label");
 const runDiagnosticsBtn = document.querySelector("#run-diagnostics-btn");
 const downloadTemplateBtn = document.querySelector("#download-template-btn");
+const serviceUrlInput = document.querySelector("#service-url");
+const saveServiceBtn = document.querySelector("#save-service-btn");
 
 const {
   N400_FORM_ID,
@@ -37,7 +39,11 @@ const {
   getNormalizedClient,
   fetchN400Template,
   createN400Doc,
+  getPdfServiceUrl,
+  setPdfServiceUrl,
+  requestN400Pdf,
   downloadPdfDoc,
+  downloadPdfBytes,
   openPdfDoc,
 } = JuratShared;
 
@@ -100,6 +106,33 @@ const setProgress = (value, label) => {
 
 const resetProgress = () => {
   setProgress(0, "Waiting for a download.");
+};
+
+const loadServiceUrl = () => {
+  serviceUrlInput.value = getPdfServiceUrl();
+};
+
+const saveServiceUrl = () => {
+  const url = serviceUrlInput.value.trim();
+  setPdfServiceUrl(url);
+  logStatus(url ? "PDF service URL saved." : "PDF service URL cleared.", "info");
+};
+
+const downloadViaService = async (client, fileName) => {
+  setProgress(20, "Requesting server PDF...");
+  const result = await requestN400Pdf(client);
+  if (!result.ok) {
+    logStatus(
+      `Server PDF failed${result.status ? ` (HTTP ${result.status})` : ""}.`,
+      "error"
+    );
+    setProgress(0, "Server PDF failed.");
+    return null;
+  }
+  setProgress(70, "Downloading from server...");
+  const url = await downloadPdfBytes({ bytes: result.bytes, fileName });
+  setProgress(100, "Download started.");
+  return url;
 };
 
 const downloadTemplate = async () => {
@@ -296,20 +329,28 @@ const renderClients = () => {
       event.stopPropagation();
       setProgress(10, "Loading N-400 template...");
       logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
-      const templateBytes = await checkN400Template();
-      if (!templateBytes) {
-        return;
+      const serviceUrl = getPdfServiceUrl();
+      let url = null;
+      if (serviceUrl) {
+        url = await downloadViaService(client, `${client.id}-N-400.pdf`);
+      } else {
+        const templateBytes = await checkN400Template();
+        if (!templateBytes) {
+          return;
+        }
+        const pdfDoc = await createN400Doc(client, templateBytes);
+        if (!pdfDoc) {
+          logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
+          setProgress(0, "Download failed.");
+          return;
+        }
+        setProgress(60, "Preparing PDF...");
+        url = await downloadPdfDoc({ pdfDoc, fileName: `${client.id}-N-400.pdf` });
+        setProgress(100, "Download started.");
       }
-      const pdfDoc = await createN400Doc(client, templateBytes);
-      if (!pdfDoc) {
-        logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
-        setProgress(0, "Download failed.");
-        return;
+      if (url) {
+        logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success", url);
       }
-      setProgress(60, "Preparing PDF...");
-      const url = await downloadPdfDoc({ pdfDoc, fileName: `${client.id}-N-400.pdf` });
-      setProgress(100, "Download started.");
-      logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success", url);
     });
     editBtn.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -659,20 +700,28 @@ downloadPreviewBtn.addEventListener("click", async () => {
   const normalized = getNormalizedClient(activeClient);
   setProgress(10, "Loading N-400 template...");
   logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
-  const templateBytes = await checkN400Template();
-  if (!templateBytes) {
-    return;
+  const serviceUrl = getPdfServiceUrl();
+  let url = null;
+  if (serviceUrl) {
+    url = await downloadViaService(activeClient, `${activeClient.id}-N-400.pdf`);
+  } else {
+    const templateBytes = await checkN400Template();
+    if (!templateBytes) {
+      return;
+    }
+    const pdfDoc = await createN400Doc(activeClient, templateBytes);
+    if (!pdfDoc) {
+      logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
+      setProgress(0, "Download failed.");
+      return;
+    }
+    setProgress(60, "Preparing PDF...");
+    url = await downloadPdfDoc({ pdfDoc, fileName: `${activeClient.id}-N-400.pdf` });
+    setProgress(100, "Download started.");
   }
-  const pdfDoc = await createN400Doc(activeClient, templateBytes);
-  if (!pdfDoc) {
-    logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
-    setProgress(0, "Download failed.");
-    return;
+  if (url) {
+    logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success", url);
   }
-  setProgress(60, "Preparing PDF...");
-  const url = await downloadPdfDoc({ pdfDoc, fileName: `${activeClient.id}-N-400.pdf` });
-  setProgress(100, "Download started.");
-  logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success", url);
 });
 
 openPreviewBtn.addEventListener("click", async () => {
@@ -683,6 +732,23 @@ openPreviewBtn.addEventListener("click", async () => {
   }
   const normalized = getNormalizedClient(activeClient);
   logStatus(`Opening preview for ${normalized.fullName}`, "info");
+  const serviceUrl = getPdfServiceUrl();
+  if (serviceUrl) {
+    const result = await requestN400Pdf(activeClient);
+    if (!result.ok) {
+      logStatus(
+        `Server PDF failed${result.status ? ` (HTTP ${result.status})` : ""}.`,
+        "error"
+      );
+      setProgress(0, "Server PDF failed.");
+      return;
+    }
+    setProgress(70, "Opening server PDF...");
+    const url = await downloadPdfBytes({ bytes: result.bytes, fileName: `${activeClient.id}-N-400.pdf` });
+    window.open(url, "_blank", "noopener");
+    setProgress(100, "Preview opened.");
+    return;
+  }
   const templateBytes = await checkN400Template();
   if (!templateBytes) {
     return;
@@ -707,6 +773,8 @@ renderClients();
 renderDrafts();
 renderPreview();
 resetProgress();
+loadServiceUrl();
 
 runDiagnosticsBtn.addEventListener("click", runDiagnostics);
 downloadTemplateBtn.addEventListener("click", downloadTemplate);
+saveServiceBtn.addEventListener("click", saveServiceUrl);
