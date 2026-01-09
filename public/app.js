@@ -1,6 +1,7 @@
 const formSelect = document.querySelector("#form-select");
 const intakeForm = document.querySelector("#intake-form");
 const clearFormBtn = document.querySelector("#clear-form-btn");
+const loadSampleBtn = document.querySelector("#load-sample-btn");
 const sendLinkBtn = document.querySelector("#send-link-btn");
 const linkBox = document.querySelector("#link-box");
 const importDraftsBtn = document.querySelector("#import-drafts-btn");
@@ -117,6 +118,16 @@ const buildClientFromForm = (formData) => {
     notes: formData.get("notes"),
     createdAt: new Date().toISOString(),
   };
+};
+
+const fillForm = (values) => {
+  Object.entries(values).forEach(([key, value]) => {
+    const field = intakeForm.querySelector(`[name="${key}"]`);
+    if (!field) {
+      return;
+    }
+    field.value = value;
+  });
 };
 
 const renderClients = () => {
@@ -251,6 +262,36 @@ intakeForm.addEventListener("submit", (event) => {
 
 clearFormBtn.addEventListener("click", () => {
   intakeForm.reset();
+});
+
+loadSampleBtn.addEventListener("click", () => {
+  const sample = {
+    firstName: "Valeria",
+    middleName: "Isabel",
+    lastName: "Gomez",
+    preferredName: "Val",
+    alienNumber: "A208945671",
+    uscisAccountNumber: "1100-2233-4455",
+    dateOfBirth: "1992-03-11",
+    dateBecamePermanentResident: "2018-06-22",
+    ssn: "123-45-6789",
+    countryOfBirth: "Colombia",
+    citizenship: "Colombia",
+    email: "valeria.gomez@email.com",
+    phone: "(312) 555-0148",
+    maritalStatus: "married",
+    spouseName: "Diego Gomez",
+    addressLine1: "4100 W Irving Park Rd",
+    addressLine2: "Apt 12C",
+    city: "Chicago",
+    state: "IL",
+    zipCode: "60641",
+    country: "United States",
+    tripsCount: "2",
+    tripsDays: "18",
+    notes: "Requested name update after marriage.",
+  };
+  fillForm(sample);
 });
 
 sendLinkBtn.addEventListener("click", () => {
