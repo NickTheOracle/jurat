@@ -11,6 +11,8 @@ const previewContent = document.querySelector("#preview-content");
 const downloadPreviewBtn = document.querySelector("#download-preview-btn");
 const openPreviewBtn = document.querySelector("#open-preview-btn");
 const statusLog = document.querySelector("#status-log");
+const progressBar = document.querySelector("#progress-bar");
+const progressLabel = document.querySelector("#progress-label");
 
 const {
   N400_FORM_ID,
@@ -55,16 +57,29 @@ let clients = loadClients();
 let drafts = loadDrafts();
 let selectedClientId = clients[0]?.id || null;
 
-const logStatus = (message, type = "info") => {
+const logStatus = (message, type = "info", linkUrl = "") => {
   const item = document.createElement("div");
   item.className = "status-item";
+  const linkMarkup = linkUrl
+    ? ` · <a class="status-link" href="${linkUrl}" target="_blank" rel="noopener">Open PDF</a>`
+    : "";
   item.innerHTML = `
     <div>
       <strong>${type.toUpperCase()}</strong>
-      <span> · ${message}</span>
+      <span> · ${message}${linkMarkup}</span>
     </div>
   `;
   statusLog.prepend(item);
+};
+
+const setProgress = (value, label) => {
+  const clamped = Math.min(100, Math.max(0, value));
+  progressBar.style.width = `${clamped}%`;
+  progressLabel.textContent = label;
+};
+
+const resetProgress = () => {
+  setProgress(0, "Waiting for a download.");
 };
 
 const buildClientFromForm = (formData) => {
@@ -156,14 +171,18 @@ const renderClients = () => {
     `;
     const button = card.querySelector("button");
     button.addEventListener("click", async () => {
+      setProgress(10, "Loading N-400 template...");
       logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
       const pdfDoc = await createN400Doc(client);
       if (!pdfDoc) {
         logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
+        setProgress(0, "Download failed.");
         return;
       }
-      await downloadPdfDoc({ pdfDoc, fileName: `${client.id}-N-400.pdf` });
-      logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success");
+      setProgress(60, "Preparing PDF...");
+      const url = await downloadPdfDoc({ pdfDoc, fileName: `${client.id}-N-400.pdf` });
+      setProgress(100, "Download started.");
+      logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success", url);
     });
     card.addEventListener("click", () => {
       selectedClientId = client.id;
@@ -338,14 +357,18 @@ downloadPreviewBtn.addEventListener("click", async () => {
     return;
   }
   const normalized = getNormalizedClient(activeClient);
+  setProgress(10, "Loading N-400 template...");
   logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
   const pdfDoc = await createN400Doc(activeClient);
   if (!pdfDoc) {
     logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
+    setProgress(0, "Download failed.");
     return;
   }
-  await downloadPdfDoc({ pdfDoc, fileName: `${activeClient.id}-N-400.pdf` });
-  logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success");
+  setProgress(60, "Preparing PDF...");
+  const url = await downloadPdfDoc({ pdfDoc, fileName: `${activeClient.id}-N-400.pdf` });
+  setProgress(100, "Download started.");
+  logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success", url);
 });
 
 openPreviewBtn.addEventListener("click", async () => {
@@ -361,14 +384,18 @@ openPreviewBtn.addEventListener("click", async () => {
     logStatus(`Failed to open preview for ${normalized.fullName}`, "error");
     return;
   }
+  setProgress(40, "Opening PDF preview...");
   const opened = await openPdfDoc({ pdfDoc });
   if (opened) {
     logStatus(`Preview opened for ${normalized.fullName}`, "success");
+    setProgress(100, "Preview opened.");
   } else {
     logStatus(`Preview blocked by browser for ${normalized.fullName}`, "error");
+    setProgress(0, "Preview blocked.");
   }
 });
 
 renderClients();
 renderDrafts();
 renderPreview();
+resetProgress();

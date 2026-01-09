@@ -384,6 +384,28 @@ textarea:focus {
   gap: 10px;
 }
 
+.progress {
+  margin-top: 16px;
+  height: 10px;
+  border-radius: 999px;
+  background: #efe7db;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--subtle);
+}
+
 .status-item {
   padding: 14px 16px;
   border-radius: 12px;
@@ -404,6 +426,16 @@ textarea:focus {
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.status-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.status-link:hover {
+  text-decoration: underline;
 }
 
 .status-good {

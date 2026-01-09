@@ -244,10 +244,14 @@ const JuratShared = (() => {
     return pdfDoc;
   };
 
-  const downloadPdfDoc = async ({ pdfDoc, fileName }) => {
+  const createPdfBlobUrl = async (pdfDoc) => {
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
+    return URL.createObjectURL(blob);
+  };
+
+  const downloadPdfDoc = async ({ pdfDoc, fileName }) => {
+    const url = await createPdfBlobUrl(pdfDoc);
     const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
@@ -260,8 +264,9 @@ const JuratShared = (() => {
       window.open(url, "_blank", "noopener");
     } finally {
       link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
     }
+    return url;
   };
 
   const openPdfDoc = async ({ pdfDoc }) => {
@@ -290,6 +295,7 @@ const JuratShared = (() => {
     buildFullName,
     getNormalizedClient,
     createN400Doc,
+    createPdfBlobUrl,
     downloadPdfDoc,
     openPdfDoc,
   };
