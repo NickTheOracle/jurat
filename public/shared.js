@@ -227,7 +227,7 @@ const JuratShared = (() => {
       }
       existingPdfBytes = result.bytes;
     }
-    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes, { ignoreEncryption: true });
     const form = pdfDoc.getForm();
     const normalized = getNormalizedClient(client);
 

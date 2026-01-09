@@ -136,7 +136,7 @@ const runDiagnostics = async () => {
   logStatus(`Template size: ${templateBytes.byteLength} bytes.`, "success");
   setProgress(60, "Parsing PDF...");
   try {
-    const pdfDoc = await window.PDFLib.PDFDocument.load(templateBytes);
+    const pdfDoc = await window.PDFLib.PDFDocument.load(templateBytes, { ignoreEncryption: true });
     const pageCount = pdfDoc.getPageCount();
     logStatus(`PDF parsed (${pageCount} pages).`, "success");
     setProgress(80, "Opening preview tab...");
@@ -152,7 +152,7 @@ const runDiagnostics = async () => {
     setProgress(100, "Diagnostics complete.");
   } catch (error) {
     console.warn("PDF parse failed.", error);
-    logStatus("Unable to parse PDF template.", "error");
+    logStatus("Unable to parse PDF template (likely XFA format).", "error");
     setProgress(0, "PDF parse failed.");
   }
 };
