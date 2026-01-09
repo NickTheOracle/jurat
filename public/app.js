@@ -13,6 +13,7 @@ const importIntakesFile = document.querySelector("#import-intakes-file");
 const exportDraftsBtn = document.querySelector("#export-drafts-btn");
 const importDraftsFileBtn = document.querySelector("#import-drafts-file-btn");
 const importDraftsFile = document.querySelector("#import-drafts-file");
+const exportAllBtn = document.querySelector("#export-all-btn");
 const draftList = document.querySelector("#draft-list");
 const clientList = document.querySelector("#client-list");
 const previewContent = document.querySelector("#preview-content");
@@ -360,6 +361,20 @@ const exportDrafts = () => {
   link.click();
 };
 
+const exportAll = () => {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    clients,
+    drafts,
+  };
+  const dataStr = `data:application/json,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
+  const link = document.createElement("a");
+  link.href = dataStr;
+  link.download = `jurat-export-${Date.now()}.json`;
+  link.click();
+};
+
 const importIntakes = async (file) => {
   const text = await file.text();
   const parsed = JSON.parse(text);
@@ -531,6 +546,14 @@ exportDraftsBtn.addEventListener("click", () => {
     return;
   }
   exportDrafts();
+});
+
+exportAllBtn.addEventListener("click", () => {
+  if (clients.length === 0 && drafts.length === 0) {
+    window.alert("No intakes or drafts to export yet.");
+    return;
+  }
+  exportAll();
 });
 
 importDraftsFileBtn.addEventListener("click", () => {
