@@ -30,16 +30,36 @@
           </div>
           <form id="intake-form">
             <div class="field-row">
-              <label for="full-name">Full legal name</label>
-              <input id="full-name" name="fullName" type="text" placeholder="Maria L. Torres" required />
+              <label for="first-name">Legal first name</label>
+              <input id="first-name" name="firstName" type="text" placeholder="Maria" required />
+            </div>
+            <div class="field-row">
+              <label for="middle-name">Legal middle name</label>
+              <input id="middle-name" name="middleName" type="text" placeholder="L." />
+            </div>
+            <div class="field-row">
+              <label for="last-name">Legal last name</label>
+              <input id="last-name" name="lastName" type="text" placeholder="Torres" required />
             </div>
             <div class="field-row">
               <label for="preferred-name">Preferred name</label>
               <input id="preferred-name" name="preferredName" type="text" placeholder="Maria" />
             </div>
             <div class="field-row">
+              <label for="alien-number">A-number (if any)</label>
+              <input id="alien-number" name="alienNumber" type="text" placeholder="A123456789" />
+            </div>
+            <div class="field-row">
+              <label for="uscis-account">USCIS online account number</label>
+              <input id="uscis-account" name="uscisAccountNumber" type="text" placeholder="1234-5678-9012" />
+            </div>
+            <div class="field-row">
               <label for="date-of-birth">Date of birth</label>
               <input id="date-of-birth" name="dateOfBirth" type="date" required />
+            </div>
+            <div class="field-row">
+              <label for="country-of-birth">Country of birth</label>
+              <input id="country-of-birth" name="countryOfBirth" type="text" placeholder="Mexico" required />
             </div>
             <div class="field-row">
               <label for="citizenship">Country of citizenship</label>
@@ -54,8 +74,28 @@
               <input id="phone" name="phone" type="tel" placeholder="(312) 555-0190" />
             </div>
             <div class="field-row">
-              <label for="address">Current address</label>
-              <textarea id="address" name="address" rows="3" placeholder="Street, City, State, ZIP"></textarea>
+              <label for="address-line1">Street address</label>
+              <input id="address-line1" name="addressLine1" type="text" placeholder="215 Grand Ave" />
+            </div>
+            <div class="field-row">
+              <label for="address-line2">Apartment / suite (optional)</label>
+              <input id="address-line2" name="addressLine2" type="text" placeholder="Apt 4B" />
+            </div>
+            <div class="field-row">
+              <label for="city">City</label>
+              <input id="city" name="city" type="text" placeholder="Los Angeles" />
+            </div>
+            <div class="field-row">
+              <label for="state">State</label>
+              <input id="state" name="state" type="text" placeholder="CA" />
+            </div>
+            <div class="field-row">
+              <label for="zip-code">ZIP code</label>
+              <input id="zip-code" name="zipCode" type="text" placeholder="90012" />
+            </div>
+            <div class="field-row">
+              <label for="country">Country</label>
+              <input id="country" name="country" type="text" placeholder="United States" />
             </div>
             <div class="field-row">
               <label for="case-type">Case type</label>
@@ -97,6 +137,7 @@
           <div class="forms-grid" id="forms-grid"></div>
           <div class="panel-footer">
             <button class="btn btn-primary" id="generate-packet-btn">Generate packet</button>
+            <button class="btn btn-ghost" id="download-selected-btn">Download selected PDFs</button>
             <button class="btn btn-ghost" id="export-json-btn">Export data JSON</button>
           </div>
         </section>
@@ -112,6 +153,9 @@
           <select id="preview-form-select"></select>
         </div>
         <div class="preview-content" id="preview-content"></div>
+        <div class="panel-footer">
+          <button class="btn btn-primary" id="download-preview-btn">Download this form (PDF)</button>
+        </div>
       </section>
 
       <section class="panel panel-activity">
@@ -123,6 +167,7 @@
       </section>
     </div>
 
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
