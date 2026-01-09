@@ -83,6 +83,9 @@
             <h2>Clients</h2>
             <p>Recent intakes ready for USCIS form prep.</p>
           </div>
+          <div class="panel-actions">
+            <button class="btn btn-ghost" id="load-demo-btn" type="button">Load demo clients</button>
+          </div>
           <div class="client-list" id="client-list"></div>
         </section>
 
@@ -98,6 +101,18 @@
           </div>
         </section>
       </main>
+
+      <section class="panel panel-preview">
+        <div class="panel-header">
+          <h2>Form review</h2>
+          <p>See a form-ready preview from the selected client intake.</p>
+        </div>
+        <div class="preview-controls">
+          <label for="preview-form-select">USCIS form</label>
+          <select id="preview-form-select"></select>
+        </div>
+        <div class="preview-content" id="preview-content"></div>
+      </section>
 
       <section class="panel panel-activity">
         <div class="panel-header">

@@ -99,6 +99,10 @@ body {
   animation: rise-in 0.7s ease-out;
 }
 
+.panel-actions {
+  margin-top: 14px;
+}
+
 .panel-header h2 {
   margin: 0 0 6px;
   font-family: var(--font-display);
@@ -185,6 +189,15 @@ textarea:focus {
   gap: 12px;
 }
 
+.empty-state {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px dashed #e0d9ce;
+  color: var(--subtle);
+}
+
 .client-card {
   padding: 16px;
   border-radius: 14px;
@@ -254,6 +267,44 @@ textarea:focus {
 
 .panel-activity {
   margin-top: 24px;
+}
+
+.panel-preview {
+  margin-top: 24px;
+}
+
+.preview-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 320px;
+  margin-top: 18px;
+}
+
+.preview-content {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.preview-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 240px) 1fr;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #eadfd2;
+}
+
+.preview-row span {
+  color: var(--subtle);
+  font-size: 14px;
+}
+
+.preview-missing {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .status-list {
