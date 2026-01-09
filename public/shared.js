@@ -41,6 +41,13 @@ const JuratShared = (() => {
     return `${month}/${day}/${year}`;
   };
 
+  const formatMaybeDate = (value) => {
+    if (!value) {
+      return "";
+    }
+    return formatDate(value);
+  };
+
   const parseStreetAddress = (addressLine1 = "") => {
     const match = addressLine1.trim().match(/^(\d+)\s+(.*)$/);
     if (!match) {
@@ -96,10 +103,16 @@ const JuratShared = (() => {
       lastName: nameParts.lastName,
       fullName,
       formattedDateOfBirth: formatDate(client.dateOfBirth || ""),
+      formattedDateBecamePermanentResident: formatMaybeDate(client.dateBecamePermanentResident || ""),
       countryOfBirth: client.countryOfBirth || "",
       citizenship: client.citizenship || "",
       alienNumber: client.alienNumber || "",
       uscisAccountNumber: client.uscisAccountNumber || "",
+      ssn: client.ssn || "",
+      maritalStatus: client.maritalStatus || "",
+      spouseName: client.spouseName || "",
+      tripsCount: client.tripsCount || "",
+      tripsDays: client.tripsDays || "",
       addressLine1,
       addressLine2,
       city,
@@ -206,8 +219,14 @@ const JuratShared = (() => {
     setTextField(form, "form1[0].#subform[1].Part2Line4a_GivenName[0]", normalized.firstName);
     setTextField(form, "form1[0].#subform[1].Part2Line4a_MiddleName[0]", normalized.middleName);
     setTextField(form, "form1[0].#subform[1].P2_Line8_DateOfBirth[0]", normalized.formattedDateOfBirth);
+    setTextField(
+      form,
+      "form1[0].#subform[1].P2_Line9_DateBecamePermanentResident[0]",
+      normalized.formattedDateBecamePermanentResident
+    );
     setTextField(form, "form1[0].#subform[1].P2_Line10_CountryOfBirth[0]", normalized.countryOfBirth);
     setTextField(form, "form1[0].#subform[1].P2_Line11_CountryOfNationality[0]", normalized.citizenship);
+    setTextField(form, "form1[0].#subform[8].P9_Line22c_SSNumber[0]", normalized.ssn);
     setTextField(form, "form1[0].#subform[2].P4_Line1_Number[0]", normalized.addressNumber);
     setTextField(form, "form1[0].#subform[2].P4_Line1_StreetName[0]", normalized.addressStreet);
     setTextField(form, "form1[0].#subform[2].P4_Line1_City[0]", normalized.city);
@@ -245,6 +264,19 @@ const JuratShared = (() => {
     }
   };
 
+  const openPdfDoc = async ({ pdfDoc }) => {
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const opened = window.open(url, "_blank", "noopener");
+    if (!opened) {
+      window.alert("Popup blocked. Please allow popups to preview the PDF.");
+      return false;
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    return true;
+  };
+
   return {
     STORAGE_KEY,
     DRAFTS_KEY,
@@ -259,5 +291,6 @@ const JuratShared = (() => {
     getNormalizedClient,
     createN400Doc,
     downloadPdfDoc,
+    openPdfDoc,
   };
 })();

@@ -54,6 +54,14 @@
               <input id="date-of-birth" name="dateOfBirth" type="date" required />
             </div>
             <div class="field-row">
+              <label for="date-pr">Date became permanent resident</label>
+              <input id="date-pr" name="dateBecamePermanentResident" type="date" />
+            </div>
+            <div class="field-row">
+              <label for="ssn">Social Security Number</label>
+              <input id="ssn" name="ssn" type="text" />
+            </div>
+            <div class="field-row">
               <label for="country-of-birth">Country of birth</label>
               <input id="country-of-birth" name="countryOfBirth" type="text" required />
             </div>
@@ -68,6 +76,21 @@
             <div class="field-row">
               <label for="phone">Phone</label>
               <input id="phone" name="phone" type="tel" />
+            </div>
+            <div class="field-row">
+              <label for="marital-status">Marital status</label>
+              <select id="marital-status" name="maritalStatus">
+                <option value="">Select</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorced">Divorced</option>
+                <option value="widowed">Widowed</option>
+                <option value="separated">Separated</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label for="spouse-name">Spouse full legal name (if applicable)</label>
+              <input id="spouse-name" name="spouseName" type="text" />
             </div>
             <div class="field-row">
               <label for="address-line1">Street address</label>
@@ -92,6 +115,14 @@
             <div class="field-row">
               <label for="country">Country</label>
               <input id="country" name="country" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="trips-count">Trips outside the U.S. (past 5 years)</label>
+              <input id="trips-count" name="tripsCount" type="number" min="0" />
+            </div>
+            <div class="field-row">
+              <label for="trips-days">Total days outside the U.S.</label>
+              <input id="trips-days" name="tripsDays" type="number" min="0" />
             </div>
             <div class="field-row">
               <label for="notes">Notes for attorney</label>

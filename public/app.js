@@ -8,6 +8,8 @@ const draftList = document.querySelector("#draft-list");
 const clientList = document.querySelector("#client-list");
 const previewContent = document.querySelector("#preview-content");
 const downloadPreviewBtn = document.querySelector("#download-preview-btn");
+const openPreviewBtn = document.querySelector("#open-preview-btn");
+const statusLog = document.querySelector("#status-log");
 
 const {
   N400_FORM_ID,
@@ -21,6 +23,7 @@ const {
   getNormalizedClient,
   createN400Doc,
   downloadPdfDoc,
+  openPdfDoc,
 } = JuratShared;
 
 const formSchema = [
@@ -28,6 +31,8 @@ const formSchema = [
   { key: "alienNumber", label: "A-number" },
   { key: "uscisAccountNumber", label: "USCIS online account number" },
   { key: "dateOfBirth", label: "Date of birth" },
+  { key: "dateBecamePermanentResident", label: "Date became permanent resident" },
+  { key: "ssn", label: "Social Security Number" },
   { key: "countryOfBirth", label: "Country of birth" },
   { key: "citizenship", label: "Country of citizenship" },
   { key: "addressLine1", label: "Street address" },
@@ -38,12 +43,28 @@ const formSchema = [
   { key: "country", label: "Country" },
   { key: "email", label: "Email address" },
   { key: "phone", label: "Phone number" },
+  { key: "maritalStatus", label: "Marital status" },
+  { key: "spouseName", label: "Spouse full legal name" },
+  { key: "tripsCount", label: "Trips outside the U.S. (5 years)" },
+  { key: "tripsDays", label: "Total days outside the U.S." },
   { key: "notes", label: "Notes for attorney" },
 ];
 
 let clients = loadClients();
 let drafts = loadDrafts();
 let selectedClientId = clients[0]?.id || null;
+
+const logStatus = (message, type = "info") => {
+  const item = document.createElement("div");
+  item.className = "status-item";
+  item.innerHTML = `
+    <div>
+      <strong>${type.toUpperCase()}</strong>
+      <span> · ${message}</span>
+    </div>
+  `;
+  statusLog.prepend(item);
+};
 
 const buildClientFromForm = (formData) => {
   const nameParts = {
@@ -76,10 +97,14 @@ const buildClientFromForm = (formData) => {
     alienNumber: formData.get("alienNumber"),
     uscisAccountNumber: formData.get("uscisAccountNumber"),
     dateOfBirth: formData.get("dateOfBirth"),
+    dateBecamePermanentResident: formData.get("dateBecamePermanentResident"),
+    ssn: formData.get("ssn"),
     countryOfBirth: formData.get("countryOfBirth"),
     citizenship: formData.get("citizenship"),
     email: formData.get("email"),
     phone: formData.get("phone"),
+    maritalStatus: formData.get("maritalStatus"),
+    spouseName: formData.get("spouseName"),
     address,
     addressLine1,
     addressLine2: formData.get("addressLine2"),
@@ -87,6 +112,8 @@ const buildClientFromForm = (formData) => {
     state,
     zipCode,
     country: formData.get("country"),
+    tripsCount: formData.get("tripsCount"),
+    tripsDays: formData.get("tripsDays"),
     notes: formData.get("notes"),
     createdAt: new Date().toISOString(),
   };
@@ -118,11 +145,14 @@ const renderClients = () => {
     `;
     const button = card.querySelector("button");
     button.addEventListener("click", async () => {
+      logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
       const pdfDoc = await createN400Doc(client);
       if (!pdfDoc) {
+        logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
         return;
       }
       await downloadPdfDoc({ pdfDoc, fileName: `${client.id}-N-400.pdf` });
+      logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success");
     });
     card.addEventListener("click", () => {
       selectedClientId = client.id;
@@ -266,11 +296,36 @@ downloadPreviewBtn.addEventListener("click", async () => {
     window.alert("Select a client to download N-400.");
     return;
   }
+  const normalized = getNormalizedClient(activeClient);
+  logStatus(`Generating N-400 for ${normalized.fullName}`, "info");
   const pdfDoc = await createN400Doc(activeClient);
   if (!pdfDoc) {
+    logStatus(`Failed to generate N-400 for ${normalized.fullName}`, "error");
     return;
   }
   await downloadPdfDoc({ pdfDoc, fileName: `${activeClient.id}-N-400.pdf` });
+  logStatus(`Downloaded N-400 for ${normalized.fullName}`, "success");
+});
+
+openPreviewBtn.addEventListener("click", async () => {
+  const activeClient = clients.find((client) => client.id === selectedClientId);
+  if (!activeClient) {
+    window.alert("Select a client to preview N-400.");
+    return;
+  }
+  const normalized = getNormalizedClient(activeClient);
+  logStatus(`Opening preview for ${normalized.fullName}`, "info");
+  const pdfDoc = await createN400Doc(activeClient);
+  if (!pdfDoc) {
+    logStatus(`Failed to open preview for ${normalized.fullName}`, "error");
+    return;
+  }
+  const opened = await openPdfDoc({ pdfDoc });
+  if (opened) {
+    logStatus(`Preview opened for ${normalized.fullName}`, "success");
+  } else {
+    logStatus(`Preview blocked by browser for ${normalized.fullName}`, "error");
+  }
 });
 
 renderClients();

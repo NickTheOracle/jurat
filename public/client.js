@@ -55,10 +55,14 @@ clientForm.addEventListener("submit", (event) => {
     alienNumber: formData.get("alienNumber"),
     uscisAccountNumber: formData.get("uscisAccountNumber"),
     dateOfBirth: formData.get("dateOfBirth"),
+    dateBecamePermanentResident: formData.get("dateBecamePermanentResident"),
+    ssn: formData.get("ssn"),
     countryOfBirth: formData.get("countryOfBirth"),
     citizenship: formData.get("citizenship"),
     email: formData.get("email"),
     phone: formData.get("phone"),
+    maritalStatus: formData.get("maritalStatus"),
+    spouseName: formData.get("spouseName"),
     address,
     addressLine1,
     addressLine2: formData.get("addressLine2"),
@@ -66,6 +70,8 @@ clientForm.addEventListener("submit", (event) => {
     state,
     zipCode,
     country: formData.get("country"),
+    tripsCount: formData.get("tripsCount"),
+    tripsDays: formData.get("tripsDays"),
     notes: formData.get("notes"),
   };
 
