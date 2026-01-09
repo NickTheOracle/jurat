@@ -103,6 +103,58 @@ body {
   margin-top: 14px;
 }
 
+.selection-row {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.helper-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--subtle);
+}
+
+.link-box {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px dashed #e0d9ce;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.link-field {
+  font-size: 14px;
+  word-break: break-all;
+  color: var(--ink);
+}
+
+.draft-list {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.draft-card {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #eadfd2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.draft-card span {
+  font-size: 12px;
+  color: var(--subtle);
+}
+
 .panel-header h2 {
   margin: 0 0 6px;
   font-family: var(--font-display);
@@ -204,7 +256,7 @@ textarea:focus {
   background: #fff;
   border: 1px solid #eadfd2;
   display: grid;
-  gap: 6px;
+  gap: 10px;
 }
 
 .client-card h3 {
@@ -221,6 +273,10 @@ textarea:focus {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.client-card button {
+  width: fit-content;
 }
 
 .badge {
@@ -287,6 +343,10 @@ textarea:focus {
   gap: 12px;
 }
 
+.preview-row div {
+  text-transform: uppercase;
+}
+
 .preview-row {
   display: grid;
   grid-template-columns: minmax(160px, 240px) 1fr;
@@ -305,6 +365,7 @@ textarea:focus {
 .preview-missing {
   color: var(--accent);
   font-weight: 600;
+  text-transform: none;
 }
 
 .status-list {

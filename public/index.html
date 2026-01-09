@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Jurat — Intake to USCIS Forms</title>
+    <title>Jurat — Assistant Intake</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -13,20 +13,30 @@
           <span class="brand-mark">J</span>
           <div class="brand-text">
             <p class="brand-name">Jurat</p>
-            <p class="brand-tagline">Intake → USCIS forms, done right.</p>
+            <p class="brand-tagline">Choose a form, capture intake, generate USCIS PDFs.</p>
           </div>
-        </div>
-        <div class="hero-actions">
-          <button class="btn btn-primary" id="new-client-btn">New client intake</button>
-          <button class="btn btn-ghost" id="share-link-btn">Share intake link</button>
         </div>
       </header>
 
       <main class="grid">
-        <section class="panel panel-intake">
+        <section class="panel">
           <div class="panel-header">
-            <h2>Client intake</h2>
-            <p>Collect key data once. Reuse everywhere.</p>
+            <h2>1. Select USCIS form</h2>
+            <p>Start with the form you need. Intake adapts automatically.</p>
+          </div>
+          <div class="selection-row">
+            <label for="form-select">USCIS form</label>
+            <select id="form-select">
+              <option value="N-400">N-400 — Application for Naturalization</option>
+            </select>
+            <p class="helper-text">More forms can be added once their PDF templates are mapped.</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>2. Intake (assistant)</h2>
+            <p>Fill this out or send a client link for the same intake.</p>
           </div>
           <form id="intake-form">
             <div class="field-row">
@@ -98,16 +108,6 @@
               <input id="country" name="country" type="text" placeholder="United States" />
             </div>
             <div class="field-row">
-              <label for="case-type">Case type</label>
-              <select id="case-type" name="caseType">
-                <option value="family-based">Family-based</option>
-                <option value="employment">Employment</option>
-                <option value="asylum">Asylum</option>
-                <option value="citizenship">Citizenship/Naturalization</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="field-row">
               <label for="notes">Notes for attorney</label>
               <textarea id="notes" name="notes" rows="4" placeholder="Add any context or special considerations."></textarea>
             </div>
@@ -118,56 +118,47 @@
           </form>
         </section>
 
-        <section class="panel panel-clients">
+        <section class="panel">
           <div class="panel-header">
-            <h2>Clients</h2>
-            <p>Recent intakes ready for USCIS form prep.</p>
+            <h2>3. Client intake link</h2>
+            <p>Send a simple link so the client can fill the same intake.</p>
           </div>
           <div class="panel-actions">
-            <button class="btn btn-ghost" id="load-demo-btn" type="button">Load demo clients</button>
+            <button class="btn btn-primary" id="send-link-btn" type="button">Generate client link</button>
           </div>
-          <div class="client-list" id="client-list"></div>
+          <div class="link-box" id="link-box">
+            <p class="helper-text">No link generated yet.</p>
+          </div>
+          <div class="panel-footer">
+            <button class="btn btn-ghost" id="import-drafts-btn" type="button">Import completed intakes</button>
+          </div>
+          <div class="draft-list" id="draft-list"></div>
+          <p class="helper-text">Prototype note: links are stored locally in your browser.</p>
         </section>
 
-        <section class="panel panel-forms">
+        <section class="panel">
           <div class="panel-header">
-            <h2>USCIS forms</h2>
-            <p>Choose forms and map intake fields automatically.</p>
+            <h2>4. Clients</h2>
+            <p>Generate the official N-400 PDF in uppercase.</p>
           </div>
-          <div class="forms-grid" id="forms-grid"></div>
-          <div class="panel-footer">
-            <button class="btn btn-primary" id="generate-packet-btn">Generate packet</button>
-            <button class="btn btn-ghost" id="download-selected-btn">Download selected PDFs</button>
-            <button class="btn btn-ghost" id="export-json-btn">Export data JSON</button>
-          </div>
+          <div class="client-list" id="client-list"></div>
         </section>
       </main>
 
       <section class="panel panel-preview">
         <div class="panel-header">
-          <h2>Form review</h2>
-          <p>See a form-ready preview from the selected client intake.</p>
-        </div>
-        <div class="preview-controls">
-          <label for="preview-form-select">USCIS form</label>
-          <select id="preview-form-select"></select>
+          <h2>Form review (N-400)</h2>
+          <p>Preview the mapped fields before generating the PDF.</p>
         </div>
         <div class="preview-content" id="preview-content"></div>
         <div class="panel-footer">
-          <button class="btn btn-primary" id="download-preview-btn">Download this form (PDF)</button>
+          <button class="btn btn-primary" id="download-preview-btn">Download N-400 (PDF)</button>
         </div>
-      </section>
-
-      <section class="panel panel-activity">
-        <div class="panel-header">
-          <h2>Automation status</h2>
-          <p>Live mapping checks for each selected form.</p>
-        </div>
-        <div class="status-list" id="status-list"></div>
       </section>
     </div>
 
     <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="./shared.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

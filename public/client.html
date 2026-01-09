@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jurat — Client Intake</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="brand">
+          <span class="brand-mark">J</span>
+          <div class="brand-text">
+            <p class="brand-name">Jurat</p>
+            <p class="brand-tagline">Client Intake — N-400</p>
+          </div>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="panel panel-intake">
+          <div class="panel-header">
+            <h2>Your intake</h2>
+            <p>Please enter your details for the N-400 form.</p>
+          </div>
+          <form id="client-intake-form">
+            <div class="field-row">
+              <label for="first-name">Legal first name</label>
+              <input id="first-name" name="firstName" type="text" required />
+            </div>
+            <div class="field-row">
+              <label for="middle-name">Legal middle name</label>
+              <input id="middle-name" name="middleName" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="last-name">Legal last name</label>
+              <input id="last-name" name="lastName" type="text" required />
+            </div>
+            <div class="field-row">
+              <label for="preferred-name">Preferred name</label>
+              <input id="preferred-name" name="preferredName" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="alien-number">A-number (if any)</label>
+              <input id="alien-number" name="alienNumber" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="uscis-account">USCIS online account number</label>
+              <input id="uscis-account" name="uscisAccountNumber" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="date-of-birth">Date of birth</label>
+              <input id="date-of-birth" name="dateOfBirth" type="date" required />
+            </div>
+            <div class="field-row">
+              <label for="country-of-birth">Country of birth</label>
+              <input id="country-of-birth" name="countryOfBirth" type="text" required />
+            </div>
+            <div class="field-row">
+              <label for="citizenship">Country of citizenship</label>
+              <input id="citizenship" name="citizenship" type="text" required />
+            </div>
+            <div class="field-row">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required />
+            </div>
+            <div class="field-row">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" />
+            </div>
+            <div class="field-row">
+              <label for="address-line1">Street address</label>
+              <input id="address-line1" name="addressLine1" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="address-line2">Apartment / suite (optional)</label>
+              <input id="address-line2" name="addressLine2" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="city">City</label>
+              <input id="city" name="city" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="state">State</label>
+              <input id="state" name="state" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="zip-code">ZIP code</label>
+              <input id="zip-code" name="zipCode" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="country">Country</label>
+              <input id="country" name="country" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="notes">Notes for attorney</label>
+              <textarea id="notes" name="notes" rows="4"></textarea>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Submit intake</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Status</h2>
+            <p id="status-message">Waiting for submission.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script src="./client.js"></script>
+  </body>
+</html>
