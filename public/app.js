@@ -7,6 +7,9 @@ const saveIntakeBtn = document.querySelector("#save-intake-btn");
 const sendLinkBtn = document.querySelector("#send-link-btn");
 const linkBox = document.querySelector("#link-box");
 const importDraftsBtn = document.querySelector("#import-drafts-btn");
+const exportIntakesBtn = document.querySelector("#export-intakes-btn");
+const importIntakesBtn = document.querySelector("#import-intakes-btn");
+const importIntakesFile = document.querySelector("#import-intakes-file");
 const draftList = document.querySelector("#draft-list");
 const clientList = document.querySelector("#client-list");
 const previewContent = document.querySelector("#preview-content");
@@ -328,6 +331,33 @@ const updateLinkBox = (link) => {
   linkBox.appendChild(copyBtn);
 };
 
+const exportIntakes = () => {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    clients,
+  };
+  const dataStr = `data:application/json,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
+  const link = document.createElement("a");
+  link.href = dataStr;
+  link.download = `jurat-intakes-${Date.now()}.json`;
+  link.click();
+};
+
+const importIntakes = async (file) => {
+  const text = await file.text();
+  const parsed = JSON.parse(text);
+  if (!parsed || !Array.isArray(parsed.clients)) {
+    window.alert("Invalid intake file.");
+    return;
+  }
+  clients = [...parsed.clients, ...clients];
+  saveClients(clients);
+  renderClients();
+  renderPreview();
+  logStatus(`Imported ${parsed.clients.length} intakes.`, "success");
+};
+
 formSelect.value = getSelectedForm();
 formSelect.addEventListener("change", (event) => {
   setSelectedForm(event.target.value);
@@ -437,6 +467,33 @@ importDraftsBtn.addEventListener("click", () => {
   saveDrafts(drafts);
   renderClients();
   renderDrafts();
+});
+
+exportIntakesBtn.addEventListener("click", () => {
+  if (clients.length === 0) {
+    window.alert("No intakes to export yet.");
+    return;
+  }
+  exportIntakes();
+});
+
+importIntakesBtn.addEventListener("click", () => {
+  importIntakesFile.click();
+});
+
+importIntakesFile.addEventListener("change", async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return;
+  }
+  try {
+    await importIntakes(file);
+  } catch (error) {
+    console.warn("Failed to import intakes.", error);
+    window.alert("Unable to import the intake file.");
+  } finally {
+    importIntakesFile.value = "";
+  }
 });
 
 downloadPreviewBtn.addEventListener("click", async () => {
