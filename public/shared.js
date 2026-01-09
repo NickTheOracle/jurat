@@ -183,8 +183,19 @@ const JuratShared = (() => {
       window.alert("PDF library not loaded yet. Please refresh and try again.");
       return null;
     }
-    const response = await fetch(N400_PDF_PATH);
-    const existingPdfBytes = await response.arrayBuffer();
+    let existingPdfBytes;
+    try {
+      const response = await fetch(N400_PDF_PATH);
+      if (!response.ok) {
+        window.alert("Unable to load the official N-400 PDF. Please refresh and try again.");
+        return null;
+      }
+      existingPdfBytes = await response.arrayBuffer();
+    } catch (error) {
+      console.warn("Failed to load N-400 PDF.", error);
+      window.alert("Unable to load the official N-400 PDF. Please refresh and try again.");
+      return null;
+    }
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
     const normalized = getNormalizedClient(client);
@@ -221,8 +232,17 @@ const JuratShared = (() => {
     const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
-    link.click();
-    URL.revokeObjectURL(url);
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    try {
+      link.click();
+    } catch (error) {
+      console.warn("Download blocked, opening PDF in a new tab.", error);
+      window.open(url, "_blank", "noopener");
+    } finally {
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
   };
 
   return {
