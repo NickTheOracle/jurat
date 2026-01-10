@@ -1,4 +1,5 @@
 const JuratShared = (() => {
+  try {
   const STORAGE_KEY = "jurat.clients";
   const DRAFTS_KEY = "jurat.drafts";
   const SELECTED_FORM_KEY = "jurat.selectedForm";
@@ -341,8 +342,8 @@ const JuratShared = (() => {
     return true;
   };
 
-    return {
-      STORAGE_KEY,
+  const api = {
+    STORAGE_KEY,
     DRAFTS_KEY,
     N400_FORM_ID,
     N400_PDF_PATH,
@@ -364,4 +365,15 @@ const JuratShared = (() => {
     requestN400Pdf,
     openPdfDoc,
   };
+  window.JuratShared = api;
+  return api;
+  } catch (error) {
+    console.error("shared.js init failed", error);
+    window.__juratSharedError = error;
+    const status = document.getElementById("js-status");
+    if (status) {
+      status.textContent = "JS status: shared.js error";
+    }
+    return {};
+  }
 })();

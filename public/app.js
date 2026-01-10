@@ -6,6 +6,11 @@ const initApp = () => {
     }
   };
   try {
+    if (window.__juratSharedError) {
+      setJsStatus("JS status: shared.js error");
+      console.error("JuratShared init error.");
+      return;
+    }
     if (!window.JuratShared) {
       setJsStatus("JS status: shared.js missing");
       console.error("JuratShared not found.");
