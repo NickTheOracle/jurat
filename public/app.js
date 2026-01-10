@@ -590,6 +590,8 @@ loadSampleBtn.addEventListener("click", () => {
   };
   fillForm(sample);
   setEditMode(null);
+  renderPreview();
+  logStatus("Sample intake loaded.", "success");
 });
 
 sendLinkBtn.addEventListener("click", () => {
