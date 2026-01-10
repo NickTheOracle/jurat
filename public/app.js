@@ -601,8 +601,14 @@ loadSampleBtn.addEventListener("click", () => {
   };
   fillForm(sample);
   setEditMode(null);
+  const formData = new FormData(intakeForm);
+  const client = buildClientFromForm(formData);
+  clients = [client, ...clients];
+  selectedClientId = client.id;
+  saveClients(clients);
+  renderClients();
   renderPreview();
-  logStatus("Sample intake loaded.", "success");
+  logStatus("Sample intake created.", "success");
 });
 
 sendLinkBtn.addEventListener("click", () => {
