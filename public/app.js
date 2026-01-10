@@ -776,6 +776,12 @@ renderDrafts();
 renderPreview();
 resetProgress();
 loadServiceUrl();
+if (!loadSampleBtn) {
+  console.error("Load sample button not found.");
+  logStatus("Sample button missing from page.", "error");
+} else {
+  logStatus("Sample button ready.", "info");
+}
 
 runDiagnosticsBtn.addEventListener("click", runDiagnostics);
 downloadTemplateBtn.addEventListener("click", downloadTemplate);
