@@ -12,6 +12,21 @@ const initApp = () => {
       return;
     }
     if (!window.JuratShared) {
+      if (!window.__juratSharedReloaded) {
+        window.__juratSharedReloaded = true;
+        setJsStatus("JS status: loading shared.js...");
+        const script = document.createElement("script");
+        script.src = "./shared.js?reload=" + Date.now();
+        script.onload = () => {
+          setJsStatus("JS status: shared.js loaded");
+          initApp();
+        };
+        script.onerror = () => {
+          setJsStatus("JS status: failed to load shared.js");
+        };
+        document.head.appendChild(script);
+        return;
+      }
       setJsStatus("JS status: shared.js missing");
       console.error("JuratShared not found.");
       return;

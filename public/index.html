@@ -267,6 +267,18 @@
           el.textContent = "JS status: failed to load " + name;
         }
       };
+      window.addEventListener("error", function (event) {
+        var el = document.getElementById("js-status");
+        if (el) {
+          el.textContent = "JS status: error " + (event.message || "unknown");
+        }
+      });
+      window.addEventListener("unhandledrejection", function (event) {
+        var el = document.getElementById("js-status");
+        if (el) {
+          el.textContent = "JS status: promise error";
+        }
+      });
     </script>
     <script src="./vendor/pdf-lib.min.js" defer onerror="window.__juratScriptError('pdf-lib')"></script>
     <script src="./shared.js" defer onerror="window.__juratScriptError('shared.js')"></script>
