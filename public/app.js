@@ -1,4 +1,17 @@
 const initApp = () => {
+  const jsStatus = document.querySelector("#js-status");
+  const setJsStatus = (text) => {
+    if (jsStatus) {
+      jsStatus.textContent = text;
+    }
+  };
+  try {
+    if (!window.JuratShared) {
+      setJsStatus("JS status: shared.js missing");
+      console.error("JuratShared not found.");
+      return;
+    }
+    setJsStatus("JS status: ready");
   const formSelect = document.querySelector("#form-select");
   const intakeForm = document.querySelector("#intake-form");
   const clearFormBtn = document.querySelector("#clear-form-btn");
@@ -31,11 +44,6 @@ const initApp = () => {
   if (!intakeForm || !clientList || !statusLog) {
     console.error("Jurat UI not fully loaded.");
     return;
-  }
-
-  const jsStatus = document.querySelector("#js-status");
-  if (jsStatus) {
-    jsStatus.textContent = "JS status: ready";
   }
 
 const {
@@ -564,8 +572,9 @@ clearFormBtn.addEventListener("click", () => {
   setEditMode(null);
 });
 
-loadSampleBtn.addEventListener("click", () => {
-  const sample = {
+  loadSampleBtn.addEventListener("click", () => {
+    logStatus("Sample intake button clicked.", "info");
+    const sample = {
     firstName: "Valeria",
     middleName: "Isabel",
     lastName: "Gomez",
@@ -803,6 +812,10 @@ if (!loadSampleBtn) {
   runDiagnosticsBtn?.addEventListener("click", runDiagnostics);
   downloadTemplateBtn?.addEventListener("click", downloadTemplate);
   saveServiceBtn?.addEventListener("click", saveServiceUrl);
+  } catch (error) {
+    console.error("Init error:", error);
+    setJsStatus("JS status: error");
+  }
 };
 
 if (document.readyState === "loading") {
