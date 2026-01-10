@@ -1,31 +1,37 @@
-const formSelect = document.querySelector("#form-select");
-const intakeForm = document.querySelector("#intake-form");
-const clearFormBtn = document.querySelector("#clear-form-btn");
-const loadSampleBtn = document.querySelector("#load-sample-btn");
-const editClientId = document.querySelector("#edit-client-id");
-const saveIntakeBtn = document.querySelector("#save-intake-btn");
-const sendLinkBtn = document.querySelector("#send-link-btn");
-const linkBox = document.querySelector("#link-box");
-const importDraftsBtn = document.querySelector("#import-drafts-btn");
-const exportIntakesBtn = document.querySelector("#export-intakes-btn");
-const importIntakesBtn = document.querySelector("#import-intakes-btn");
-const importIntakesFile = document.querySelector("#import-intakes-file");
-const exportDraftsBtn = document.querySelector("#export-drafts-btn");
-const importDraftsFileBtn = document.querySelector("#import-drafts-file-btn");
-const importDraftsFile = document.querySelector("#import-drafts-file");
-const exportAllBtn = document.querySelector("#export-all-btn");
-const draftList = document.querySelector("#draft-list");
-const clientList = document.querySelector("#client-list");
-const previewContent = document.querySelector("#preview-content");
-const downloadPreviewBtn = document.querySelector("#download-preview-btn");
-const openPreviewBtn = document.querySelector("#open-preview-btn");
-const statusLog = document.querySelector("#status-log");
-const progressBar = document.querySelector("#progress-bar");
-const progressLabel = document.querySelector("#progress-label");
-const runDiagnosticsBtn = document.querySelector("#run-diagnostics-btn");
-const downloadTemplateBtn = document.querySelector("#download-template-btn");
-const serviceUrlInput = document.querySelector("#service-url");
-const saveServiceBtn = document.querySelector("#save-service-btn");
+const initApp = () => {
+  const formSelect = document.querySelector("#form-select");
+  const intakeForm = document.querySelector("#intake-form");
+  const clearFormBtn = document.querySelector("#clear-form-btn");
+  const loadSampleBtn = document.querySelector("#load-sample-btn");
+  const editClientId = document.querySelector("#edit-client-id");
+  const saveIntakeBtn = document.querySelector("#save-intake-btn");
+  const sendLinkBtn = document.querySelector("#send-link-btn");
+  const linkBox = document.querySelector("#link-box");
+  const importDraftsBtn = document.querySelector("#import-drafts-btn");
+  const exportIntakesBtn = document.querySelector("#export-intakes-btn");
+  const importIntakesBtn = document.querySelector("#import-intakes-btn");
+  const importIntakesFile = document.querySelector("#import-intakes-file");
+  const exportDraftsBtn = document.querySelector("#export-drafts-btn");
+  const importDraftsFileBtn = document.querySelector("#import-drafts-file-btn");
+  const importDraftsFile = document.querySelector("#import-drafts-file");
+  const exportAllBtn = document.querySelector("#export-all-btn");
+  const draftList = document.querySelector("#draft-list");
+  const clientList = document.querySelector("#client-list");
+  const previewContent = document.querySelector("#preview-content");
+  const downloadPreviewBtn = document.querySelector("#download-preview-btn");
+  const openPreviewBtn = document.querySelector("#open-preview-btn");
+  const statusLog = document.querySelector("#status-log");
+  const progressBar = document.querySelector("#progress-bar");
+  const progressLabel = document.querySelector("#progress-label");
+  const runDiagnosticsBtn = document.querySelector("#run-diagnostics-btn");
+  const downloadTemplateBtn = document.querySelector("#download-template-btn");
+  const serviceUrlInput = document.querySelector("#service-url");
+  const saveServiceBtn = document.querySelector("#save-service-btn");
+
+  if (!intakeForm || !clientList || !statusLog) {
+    console.error("Jurat UI not fully loaded.");
+    return;
+  }
 
 const {
   N400_FORM_ID,
@@ -783,6 +789,13 @@ if (!loadSampleBtn) {
   logStatus("Sample button ready.", "info");
 }
 
-runDiagnosticsBtn.addEventListener("click", runDiagnostics);
-downloadTemplateBtn.addEventListener("click", downloadTemplate);
-saveServiceBtn.addEventListener("click", saveServiceUrl);
+  runDiagnosticsBtn?.addEventListener("click", runDiagnostics);
+  downloadTemplateBtn?.addEventListener("click", downloadTemplate);
+  saveServiceBtn?.addEventListener("click", saveServiceUrl);
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
