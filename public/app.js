@@ -33,6 +33,11 @@ const initApp = () => {
     return;
   }
 
+  const jsStatus = document.querySelector("#js-status");
+  if (jsStatus) {
+    jsStatus.textContent = "JS status: ready";
+  }
+
 const {
   N400_FORM_ID,
   loadClients,

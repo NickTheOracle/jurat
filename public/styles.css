@@ -356,6 +356,16 @@ textarea:focus {
   flex: 1 1 320px;
 }
 
+.js-status {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px dashed #e0d9ce;
+  font-size: 13px;
+  color: var(--subtle);
+}
+
 .preview-controls {
   display: flex;
   flex-direction: column;

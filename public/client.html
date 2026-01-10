@@ -180,7 +180,15 @@
       </main>
     </div>
 
-    <script src="./shared.js"></script>
-    <script src="./client.js"></script>
+    <script>
+      window.__juratScriptError = function (name) {
+        var el = document.getElementById("status-message");
+        if (el) {
+          el.textContent = "Failed to load " + name;
+        }
+      };
+    </script>
+    <script src="./shared.js" defer onerror="window.__juratScriptError('shared.js')"></script>
+    <script src="./client.js" defer onerror="window.__juratScriptError('client.js')"></script>
   </body>
 </html>

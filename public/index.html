@@ -239,6 +239,7 @@
           <h2>Download status</h2>
           <p>See what succeeded, failed, or is waiting.</p>
         </div>
+        <div class="js-status" id="js-status">JS status: loading...</div>
         <div class="service-config">
           <label for="service-url">PDF service URL (Java/XFA)</label>
           <div class="service-row">
@@ -259,8 +260,16 @@
       </section>
     </div>
 
-    <script src="./vendor/pdf-lib.min.js"></script>
-    <script src="./shared.js"></script>
-    <script src="./app.js"></script>
+    <script>
+      window.__juratScriptError = function (name) {
+        var el = document.getElementById("js-status");
+        if (el) {
+          el.textContent = "JS status: failed to load " + name;
+        }
+      };
+    </script>
+    <script src="./vendor/pdf-lib.min.js" defer onerror="window.__juratScriptError('pdf-lib')"></script>
+    <script src="./shared.js" defer onerror="window.__juratScriptError('shared.js')"></script>
+    <script src="./app.js" defer onerror="window.__juratScriptError('app.js')"></script>
   </body>
 </html>
